@@ -37,7 +37,7 @@ vec3 ToneMapping(vec3 color) {
 
 void main() {
     vec3 color =  texture2D(gcolor, texcoord.st).rgb;
-    color = Bloom(color, 0.2);
+    color = Bloom(color, 0.5);
     color = ToneMapping(color);
     gl_FragColor = vec4(color, 1.0);
 }
