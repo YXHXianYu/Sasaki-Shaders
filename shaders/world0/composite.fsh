@@ -122,6 +122,8 @@ float distance2(vec3 p1, vec3 p2) { // calculate distance^2 between two points
     return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y) + (p1.z - p2.z) * (p1.z - p2.z);
 }
 vec3 cloudRayMarching(vec3 cameraPosition, vec4 viewPosition, vec3 originColor, float maxDistance) { // calculate cloud
+    if(!ENABLE_CLOUD) return originColor;
+
     vec3 direction = normalize(gbufferModelViewInverse * viewPosition).xyz;
     if(direction.y <= RAY_MARCHING_DIRECTION_Y_LIMIT) return originColor;
 

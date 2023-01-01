@@ -134,6 +134,8 @@ vec3 WaterRayTracing(vec3 color, vec3 start_point, vec3 direction, float jitter,
 }
 
 vec3 WaterReflection(vec3 color) {
+    if(!ENABLE_WATER_REFLECTION) return color;
+    
     vec2 uv = texcoord.st;
     float depth = texture2D(depthtex0, uv).r;
     vec3 view_position = MultipleGBufferProjectionInverse(vec4(texcoord.s * 2.0 - 1.0, texcoord.t * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0)); // some of szszss'codes may be redundant

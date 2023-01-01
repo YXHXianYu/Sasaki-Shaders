@@ -12,13 +12,14 @@ const float SHADOW_MAP_BIAS = 0.85; // Dome Projection Coefficient [0.6, 0.8, 0.
 const float BLOOM_STRENGTH = 0.5; // [0.0 ~ 1.0]
 
 /* Cloud */
+const bool ENABLE_CLOUD = true; // [true or false]
 const float CLOUD_MIN = 400.0;
 const float CLOUD_MAX = 460.0;
-
 const float RAY_MARCHING_TIMES = 64;
 const float RAY_MARCHING_DIRECTION_Y_LIMIT = 0.05;
 
 /* Water Reflection */
+const bool ENABLE_WATER_REFLECTION = true; // [true or false]
 const bool ENABLE_JITTER = true; // [true or false]
 
 /* Dynamic Water */
