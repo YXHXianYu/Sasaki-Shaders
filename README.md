@@ -6,15 +6,20 @@
 
 ### Features
 
-* Waving grass and leaves
+* Waving Grass and Leaves
 * Bloom
 * Shadow
   * Using shadow mapping and percentage closer filter
 * Clouds
   * Based on [iq's clouds](https://www.shadertoy.com/view/XslGRr) and using Ray Marching
   * A lot of improvements are needed...
-* Water surface reflection
-  * Under development
+* Water Reflection
+  * Using 3D Screen Space Reflection (Ray Tracing)
+* Dynamic & Transparent Water
+
+### Preview
+
+![2023-01-01_15.35.02](README/2023-01-01_15.35.02.png)
 
 ### Minecraft versions
 

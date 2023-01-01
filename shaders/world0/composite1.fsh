@@ -1,7 +1,7 @@
-#version 120
-/* DRAWBUFFERS:1 */
+#version 450
+/* DRAWBUFFERS:3 */
  
-uniform sampler2D colortex3;
+uniform sampler2D colortex1;
 uniform float viewWidth;
 uniform float viewHeight;
  
@@ -21,5 +21,5 @@ vec3 blur(sampler2D image, vec2 uv, vec2 direction) {
 }
  
 void main() {
-    gl_FragData[0] = vec4(blur(colortex3, texcoord.st, vec2(0.0, 1.0) / vec2(viewWidth, viewHeight)), 1.0);
+    gl_FragData[0] = vec4(blur(colortex1, texcoord.st, vec2(1.0, 0.0) / vec2(viewWidth, viewHeight)), 1.0);
 }

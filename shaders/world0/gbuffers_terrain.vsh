@@ -1,4 +1,4 @@
-#version 120
+#version 450
 
 /* ----- include ----- */
 #include "/block.properties"
@@ -30,7 +30,7 @@ void main() {
     vec4 position = gl_Vertex;
     vec3 sample_position = mod(gl_Vertex.xyz + cameraPosition, 16.0); // for 1.18.2
 
-    int blockId = int(mc_Entity.x);
+    int blockId = int(mc_Entity.x + 0.5);
     if((blockId == BLOCK_SMALL_PLANTS || blockId == BLOCK_PLANTS || blockId == BLOCK_DOUBLE_PLANTS_UPPER) && gl_MultiTexCoord0.t < mc_midTexCoord.t) {
         vec3 noise = texture2D(noisetex, sample_position.xz / 256.0).rgb; // 16 * 16 * 16; repeat (loop)
         float maxStrength = 1.0 + rainStrength * 0.5;

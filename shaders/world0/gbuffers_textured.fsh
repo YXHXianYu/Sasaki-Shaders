@@ -1,4 +1,4 @@
-#version 120
+#version 450
 /* DRAWBUFFERS:02 */
 
 uniform sampler2D texture;

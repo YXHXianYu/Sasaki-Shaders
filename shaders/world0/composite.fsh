@@ -1,15 +1,18 @@
-#version 120
+#version 450
 /* DRAWBUFFERS:01 */
+
+/* includes */
+#include "/include/config.glsl"
+
+// basic
+uniform sampler2D gcolor;
+varying vec4 texcoord;
 
 // some uniform vars
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 
 /* ----- Shadow Mapping - Begin ----- */
-const bool shadowHardwareFiltering = true; // 启用硬件PCF
-const int shadowMapResolution = 2048; // 硬件PCF分辨率设置为2048
-
-#define SHADOW_MAP_BIAS 0.85 // Dome Projection Coefficient
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform sampler2DShadow shadow;
@@ -21,8 +24,11 @@ uniform float far; // projection matrix the far face
 varying float extShadow;
 varying vec3 lightPosition;
 
+// 水面不渲染阴影
+uniform sampler2D colortex4;
+
 float shadowMapping(vec4 worldPosition, float dist, vec3 normal, float alpha) {
-    if(dist > 0.9) //距离过远(比如远景和天空)的地方就不渲染了
+    if(dist > 0.9) //距离过远(比如远景和天空)的地方就不渲染阴影了
         return extShadow;
     
     float shade = 0;
@@ -48,18 +54,13 @@ float shadowMapping(vec4 worldPosition, float dist, vec3 normal, float alpha) {
     }
     shade -= clamp((dist - 0.7) * 5.0, 0.0, 1.0);//在l处于0.7~0.9的地方进行渐变过渡
     shade = clamp(shade, 0.0, 1.0); //避免出现过大或过小
-    return max(shade, extShadow);
     
+    if(texture2D(colortex4, texcoord.st).x * 255.0 == 1.0) // 水面不渲染阴影
+        return max(shade, extShadow) * 0.05;
+
+    return max(shade, extShadow);
 }
 /* ----- Shadow Mapping - End ----- */
-
-// bloom
-const int RGB8 = 0;
-const int colortex1Format = RGB8;
-
-// normal
-const int RG16 = 0;
-const int gnormalFormat = RG16;
 
 uniform sampler2D gnormal;
 uniform vec3 sunPosition;
@@ -74,8 +75,6 @@ vec3 normalDecode(vec2 enc) {
 
 /* ----- Cloud - Begin ----- */
 uniform vec3 cameraPosition;
-#define CLOUD_MIN 400.0
-#define CLOUD_MAX 460.0
 uniform float frameTimeCounter;
 uniform sampler2D noisetex; // 噪声图
 varying vec3 worldSunPosition; // 太阳向量
@@ -124,7 +123,7 @@ float distance2(vec3 p1, vec3 p2) { // calculate distance^2 between two points
 }
 vec3 cloudRayMarching(vec3 cameraPosition, vec4 viewPosition, vec3 originColor, float maxDistance) { // calculate cloud
     vec3 direction = normalize(gbufferModelViewInverse * viewPosition).xyz;
-    if(direction.y <= 0.05) return originColor;
+    if(direction.y <= RAY_MARCHING_DIRECTION_Y_LIMIT) return originColor;
 
     vec3 testPoint = cameraPosition;
     
@@ -138,7 +137,7 @@ vec3 cloudRayMarching(vec3 cameraPosition, vec4 viewPosition, vec3 originColor, 
     vec4 final = vec4(0.0);
     float fadeout = (1.0 - clamp(length(testPoint) / (far * 100.0) * 6.0, 0.0, 1.0));
 
-    for(int i = 0; i < 64; i++) {
+    for(int i = 0; i < RAY_MARCHING_TIMES; i++) {
 
         // if(cloudMin < testPoint.y && testPoint.y < cloudMax) final.xyz += 0.1;
 
@@ -158,10 +157,6 @@ vec3 cloudRayMarching(vec3 cameraPosition, vec4 viewPosition, vec3 originColor, 
 }
 /* ----- Cloud - End ----- */
 
-// basic
-uniform sampler2D gcolor;
-varying vec4 texcoord;
-
 void main() {
     vec4 color = texture2D(gcolor, texcoord.st);
     vec3 normal = normalDecode(texture2D(gnormal, texcoord.st).rg);
@@ -170,7 +165,6 @@ void main() {
     vec4 viewPosition = gbufferProjectionInverse * vec4(texcoord.s * 2.0 - 1.0, texcoord.t * 2.0 - 1.0, 2.0 * depth - 1.0, 1.0f);
     viewPosition /= viewPosition.w;
     vec4 worldPosition = gbufferModelViewInverse * (viewPosition + vec4(normal * 0.05 * sqrt(abs(viewPosition.z)), 0.0));
-
 
     float dist = length(worldPosition.xyz);
     float shade = shadowMapping(worldPosition, dist / far, normal, color.a);
