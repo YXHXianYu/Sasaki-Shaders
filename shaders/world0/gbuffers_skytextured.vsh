@@ -1,6 +1,7 @@
-#version 120
+#version 450
 
 varying vec4 color;
+varying vec4 texcoord;
 varying vec2 normal;
  
 vec2 normalEncode(vec3 n) {
@@ -10,10 +11,8 @@ vec2 normalEncode(vec3 n) {
 }
 
 void main() {
-    vec4 position = gl_ModelViewMatrix * gl_Vertex;
-    gl_Position = gl_ProjectionMatrix * position;
-    gl_FogFragCoord = length(position.xyz);
-    
+    gl_Position = ftransform();
     color = gl_Color;
+    texcoord = gl_TextureMatrix[0] * gl_MultiTexCoord0;
     normal = normalEncode(gl_NormalMatrix * gl_Normal);
 }

@@ -1,8 +1,7 @@
-#version 120
+#version 450
 
-/* Enable Color Texture */
-const int R8 = 0;
-const int colortex4Format = R8;
+/* includes */
+#include "/include/config.glsl"
 
 /* Basic */
 uniform sampler2D gcolor;
@@ -144,10 +143,11 @@ vec3 WaterReflection(vec3 color) {
         vec3 reflect_direction = reflect(normalize(view_position), normal);
 
         // 抖动jitter：去除水面反射的封层，但出现锯齿。
-        vec2 uv2 = texcoord.st * vec2(viewWidth, viewHeight);
-        float c = (uv2.x + uv2.y) * 0.25;
-        float jitter = mod(c, 1.0);
-        jitter = 0;
+        float jitter = 0.0;
+        if(ENABLE_JITTER) {
+            vec2 uv2 = texcoord.st * vec2(viewWidth, viewHeight);
+            jitter = mod((uv2.x + uv2.y) * 0.25, 1.0);
+        }
 
         // Schlick's approximation
         float fresnel = 0.02 + 0.98 * pow(1.0 - dot(reflect_direction, normal), 3.0);
@@ -163,7 +163,7 @@ vec3 WaterReflection(vec3 color) {
 void main() {
     vec3 color =  texture2D(gcolor, texcoord.st).rgb;
     color = WaterReflection(color);
-    color = Bloom(color, 0.5);
+    color = Bloom(color, BLOOM_STRENGTH);
     color = ToneMapping(color);
     gl_FragColor = vec4(color, 1.0);
 }
