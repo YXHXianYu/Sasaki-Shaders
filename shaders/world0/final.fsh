@@ -163,9 +163,15 @@ vec3 WaterReflection(vec3 color) {
 
 /* Main */
 void main() {
-    vec3 color =  texture2D(gcolor, texcoord.st).rgb;
-    color = WaterReflection(color);
-    color = Bloom(color, BLOOM_STRENGTH);
-    color = ToneMapping(color);
-    gl_FragColor = vec4(color, 1.0);
+    if(RENDER_Z_BUFFER) {
+        float depth_color = 20.0 * (1.0 - texture2D(depthtex0, texcoord.st).r); // depth_color = 20 * depth
+        depth_color = pow(depth_color, 1.0 / 1.5); // Mapping! Power of Mathmatic!
+        gl_FragColor = vec4(vec3(depth_color), 1.0);
+    } else {
+        vec3 color =  texture2D(gcolor, texcoord.st).rgb;
+        color = WaterReflection(color);
+        color = Bloom(color, BLOOM_STRENGTH);
+        color = ToneMapping(color);
+        gl_FragColor = vec4(color, 1.0);
+    }
 }

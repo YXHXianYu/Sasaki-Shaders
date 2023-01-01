@@ -17,6 +17,8 @@ varying vec4 color;
 varying vec4 texcoord;
 varying vec4 lmcoord;
 varying vec2 normal;
+
+varying vec3 vertex_position; // for render vertex position mode
  
 vec2 normalEncode(vec3 n) {
     vec2 enc = normalize(n.xy) * (sqrt(-n.z*0.5+0.5));
@@ -49,14 +51,13 @@ void main() {
         position.z += sin(noise.y * 10.0 + time) * 0.07 * reset * maxStrength;
     }
 
-    position = gl_ModelViewMatrix * position;
-
-    gl_Position = gl_ProjectionMatrix * position;
-    
+    gl_Position = gl_ModelViewProjectionMatrix * position;
     gl_FogFragCoord = length(position.xyz);
 
     color = gl_Color;
     texcoord = gl_TextureMatrix[0] * gl_MultiTexCoord0;
     lmcoord = gl_TextureMatrix[1] * gl_MultiTexCoord1;
     normal = normalEncode(gl_NormalMatrix * gl_Normal);
+
+    vertex_position = mod(gl_Vertex.xyz + cameraPosition, 16.0);
 }

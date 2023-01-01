@@ -29,6 +29,10 @@ const float DYNAMIC_WATER_STRENGTH = 0.1; // [0.0 ~ 0.5]
 const float WATER_TRANSPARENT_STRENGTH = 0.5; // [0.0 ~ 1.0]
 const float WATER_BLUE_STRENGTH = 0.4; // [0.0 ~ 1.0]
 
+/* Some Special Mode */
+const bool RENDER_Z_BUFFER = false; // render z-buffer (depth buffer) [true of false]
+const bool RENDER_VERTEX_POSITION = false; // render vertex position [true of false]
+
 /* Enable Color Texture */
 // This code used to set in final.fsh
 // If you don't know what you are doing, do not modify the following content.
