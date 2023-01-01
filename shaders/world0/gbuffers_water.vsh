@@ -5,10 +5,10 @@
 #include "/include/config.glsl"
 
 /* basic */
-varying vec4 color;
-varying vec4 texcoord;
-varying vec4 lmcoord;
-varying vec2 normal;
+out vec4 color;
+out vec4 texcoord;
+out vec4 lmcoord;
+out vec2 normal;
 
 vec2 normalEncode(vec3 n) {
     return normalize(n.xy) * (sqrt(-n.z * 0.5 + 0.5)) * 0.5 + 0.5;
@@ -16,7 +16,8 @@ vec2 normalEncode(vec3 n) {
 
 /* blockId */
 attribute vec4 mc_Entity;
-varying float attr;
+out float attr;
+out float blockId;
 
 /* dynamic water */
 uniform sampler2D noisetex; // noise
@@ -32,17 +33,18 @@ void DynamicWater(inout vec4 position, vec3 sample_position) {
 
 void main() {
     // water tag
-    int blockId = int(mc_Entity.x + 0.5);
-    if(blockId == BLOCK_WATER && gl_Normal.y > -0.9)
+    int iBlockId = int(mc_Entity.x + 0.5);
+    if(iBlockId == BLOCK_WATER && gl_Normal.y > -0.9)
         attr = 1.0 / 255.0;
     else
         attr = 0.0;
+    blockId = float(iBlockId) + 0.5;
     
-    // dynamic water
     vec4 position = gl_Vertex;
-    vec3 sample_position = mod(gl_Vertex.xyz + cameraPosition, 16.0);
 
-    DynamicWater(position, sample_position);
+    // dynamic water
+    if(iBlockId == BLOCK_WATER)
+        DynamicWater(position, mod(gl_Vertex.xyz + cameraPosition, 16.0));
 
     // result
     gl_Position = gl_ModelViewProjectionMatrix * position;

@@ -1,6 +1,9 @@
 #version 450
 /* DRAWBUFFERS:02 */
 
+/* includes */
+#include "/include/config.glsl"
+
 uniform sampler2D texture;
 
 uniform int fogMode;
@@ -12,7 +15,7 @@ varying vec2 normal;
 uniform int blockEntityId;
 
 void main() {
-    if(blockEntityId == 0) {
+    if(blockEntityId == 0 && ENABLE_CLOUD) {
         discard;
     }
 
