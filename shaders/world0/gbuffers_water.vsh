@@ -1,4 +1,4 @@
-#version 450
+#version 450 compatibility
 
 /* includes */
 #include "/block.properties"
@@ -15,7 +15,7 @@ vec2 normalEncode(vec3 n) {
 }
 
 /* blockId */
-attribute vec4 mc_Entity;
+in vec4 mc_Entity;
 out float attr;
 out float blockId;
 
@@ -25,7 +25,7 @@ uniform float frameTimeCounter; // time
 uniform vec3 cameraPosition;
 
 void DynamicWater(inout vec4 position, vec3 sample_position) {
-    float noise = texture2D(noisetex, sample_position.xz / 16.0).r;
+    float noise = texture(noisetex, sample_position.xz / 16.0).r;
     float time = frameTimeCounter * 2.0;
     
     position.y += (sin(noise * 10.0 + time) - 1.0) * DYNAMIC_WATER_STRENGTH;

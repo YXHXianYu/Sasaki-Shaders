@@ -1,11 +1,11 @@
-#version 450
+#version 450 compatibility
 /* DRAWBUFFERS:02 */
 
 uniform sampler2D texture;
 
-varying vec4 color;
-varying vec4 texcoord;
-varying vec2 normal;
+in vec4 color;
+in vec4 texcoord;
+in vec2 normal;
 
 void main() {
     gl_FragData[0] = texture2D(texture, texcoord.st) * color;

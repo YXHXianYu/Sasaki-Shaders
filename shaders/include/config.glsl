@@ -26,7 +26,7 @@ const bool ENABLE_JITTER = true; // [true or false]
 const float DYNAMIC_WATER_STRENGTH = 0.1; // [0.0 ~ 0.5]
 
 /* Transparent Water */
-const float WATER_TRANSPARENT_STRENGTH = 0.5; // [0.0 ~ 1.0]
+const float WATER_TRANSPARENT_STRENGTH = 0.5; // [0.0 ~ 1.0] bigger => not transparent
 const float WATER_BLUE_STRENGTH = 0.4; // [0.0 ~ 1.0]
 
 /* Some Special Mode */

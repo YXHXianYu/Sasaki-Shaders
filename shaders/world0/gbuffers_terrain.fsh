@@ -1,4 +1,4 @@
-#version 450
+#version 450 compatibility
 /* DRAWBUFFERS:02 */
 
 /* includes */
@@ -12,12 +12,12 @@ uniform sampler2D lightmap;
 
 uniform int fogMode;
 
-varying vec4 color;
-varying vec4 texcoord;
-varying vec4 lmcoord;
-varying vec2 normal;
+in vec4 color;
+in vec4 texcoord;
+in vec4 lmcoord;
+in vec2 normal;
 
-varying vec3 vertex_position; // for render vertex position mode
+in vec3 vertex_position; // for render vertex position mode
 
 void main() {
     if(RENDER_VERTEX_POSITION) {
