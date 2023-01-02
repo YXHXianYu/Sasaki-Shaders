@@ -1,4 +1,4 @@
-#version 450
+#version 450 compatibility
 
 uniform mat4 gbufferModelViewInverse;
 
@@ -6,10 +6,10 @@ uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 uniform int worldTime;
 
-varying vec4 texcoord;
-varying vec3 lightPosition;
-varying float extShadow;
-varying vec3 worldSunPosition;
+out vec4 texcoord;
+out vec3 lightPosition;
+out float extShadow;
+out vec3 worldSunPosition;
  
 #define SUNRISE 23200
 #define SUNSET 12800
@@ -19,10 +19,10 @@ varying vec3 worldSunPosition;
 /* ----- Cloud change with time - Begin ----- */
 uniform float rainStrength;
 
-varying vec3 cloudBase1;
-varying vec3 cloudBase2;
-varying vec3 cloudLight1;
-varying vec3 cloudLight2;
+out vec3 cloudBase1;
+out vec3 cloudBase2;
+out vec3 cloudLight1;
+out vec3 cloudLight2;
 
 #define SUNSET_START 11500.0
 #define SUNSET_MID1 12300.0

@@ -1,10 +1,10 @@
-#version 450
+#version 450 compatibility
 /* DRAWBUFFERS:02 */
 
 uniform int fogMode;
 
-varying vec4 color;
-varying vec2 normal;
+in vec4 color;
+in vec2 normal;
  
 void main() {
     gl_FragData[0] = color;

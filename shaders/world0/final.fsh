@@ -1,4 +1,4 @@
-#version 450
+#version 450 compatibility
 
 /* includes */
 #include "/include/config.glsl"
@@ -7,12 +7,12 @@
 uniform sampler2D gcolor;
 uniform sampler2D gnormal;
 
-varying vec4 texcoord;
+in vec4 texcoord;
 
 /* Bloom */
 uniform sampler2D colortex1;
 vec3 Bloom(vec3 color, float coefficient) {
-    vec3 hightlight = texture2D(colortex1, texcoord.st).rgb;
+    vec3 hightlight = texture(colortex1, texcoord.st).rgb;
     return color + hightlight * clamp(coefficient, 0.0, 1.0);
 }
 
@@ -93,7 +93,7 @@ vec3 WaterRayTracing(vec3 color, vec3 start_point, vec3 direction, float jitter,
             break;
         }
 
-        float sample_depth = LinearizeDepth(texture2DLod(depthtex0, uv, 0.0).x);
+        float sample_depth = LinearizeDepth(textureLod(depthtex0, uv, 0.0).x);
         float test_depth = GetLinearDepthOfViewPosition(test_point);
         // 经验公式2：为了处理有遮挡物的情况
         if(sample_depth < test_depth && test_depth - sample_depth < (1.0 / 2048.0) * (1.0 + test_depth * 200.0 + float(i))) {
@@ -106,7 +106,7 @@ vec3 WaterRayTracing(vec3 color, vec3 start_point, vec3 direction, float jitter,
                 final_point += direction * bisearch_sign;
                 
                 uv = GetScreenCoordByViewPosition(final_point);
-                sample_depth = LinearizeDepth(texture2DLod(depthtex0, uv, 0.0).x);
+                sample_depth = LinearizeDepth(textureLod(depthtex0, uv, 0.0).x);
                 test_depth = GetLinearDepthOfViewPosition(test_point);
 
                 bisearch_sign = sign(sample_depth - test_depth);
@@ -114,7 +114,7 @@ vec3 WaterRayTracing(vec3 color, vec3 start_point, vec3 direction, float jitter,
             uv = GetScreenCoordByViewPosition(final_point); // useless
 
             is_hit = true;
-            hit_color = vec4(texture2DLod(gcolor, uv, 0.0).rgb, 1.0);
+            hit_color = vec4(textureLod(gcolor, uv, 0.0).rgb, 1.0);
             hit_color.a = clamp(1.0 - pow(distance(uv, vec2(0.5))*2.0, 2.0), 0.0, 1.0);
             break;
         }
@@ -122,10 +122,10 @@ vec3 WaterRayTracing(vec3 color, vec3 start_point, vec3 direction, float jitter,
     }
     if(!is_hit) {
         uv = GetScreenCoordByViewPosition(last_point);
-        float sample_depth = LinearizeDepth(texture2DLod(depthtex0, uv, 0.0).x);
+        float sample_depth = LinearizeDepth(textureLod(depthtex0, uv, 0.0).x);
         float test_depth = GetLinearDepthOfViewPosition(last_point);
         if(test_depth - sample_depth < 0.5) {
-            hit_color = vec4(texture2DLod(gcolor, uv, 0.0).rgb, 1.0);
+            hit_color = vec4(textureLod(gcolor, uv, 0.0).rgb, 1.0);
             hit_color.a = clamp(1.0 - pow(distance(uv, vec2(0.5))*2.0, 2.0), 0.0, 1.0);
             hit_color.a *= 0.3; // 让大片海的天空反射不那么突兀
         }
@@ -137,11 +137,11 @@ vec3 WaterReflection(vec3 color) {
     if(!ENABLE_WATER_REFLECTION) return color;
     
     vec2 uv = texcoord.st;
-    float depth = texture2D(depthtex0, uv).r;
+    float depth = texture(depthtex0, uv).r;
     vec3 view_position = MultipleGBufferProjectionInverse(vec4(texcoord.s * 2.0 - 1.0, texcoord.t * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0)); // some of szszss'codes may be redundant
-    float attr = texture2D(colortex4, uv).r * 255.0;
+    float attr = texture(colortex4, uv).r * 255.0;
     if(attr == 1.0) {
-        vec3 normal = NormalDecode(texture2D(gnormal, texcoord.st).rg);
+        vec3 normal = NormalDecode(texture(gnormal, texcoord.st).rg);
         vec3 reflect_direction = reflect(normalize(view_position), normal);
 
         // 抖动jitter：去除水面反射的封层，但出现锯齿。
@@ -163,9 +163,15 @@ vec3 WaterReflection(vec3 color) {
 
 /* Main */
 void main() {
-    vec3 color =  texture2D(gcolor, texcoord.st).rgb;
-    color = WaterReflection(color);
-    color = Bloom(color, BLOOM_STRENGTH);
-    color = ToneMapping(color);
-    gl_FragColor = vec4(color, 1.0);
+    if(RENDER_Z_BUFFER) {
+        float depth_color = 20.0 * (1.0 - texture(depthtex0, texcoord.st).r); // depth_color = 20 * depth
+        depth_color = pow(depth_color, 1.0 / 1.5); // Mapping! Power of Mathmatic!
+        gl_FragColor = vec4(vec3(depth_color), 1.0);
+    } else {
+        vec3 color =  texture(gcolor, texcoord.st).rgb;
+        color = WaterReflection(color);
+        color = Bloom(color, BLOOM_STRENGTH);
+        color = ToneMapping(color);
+        gl_FragColor = vec4(color, 1.0);
+    }
 }

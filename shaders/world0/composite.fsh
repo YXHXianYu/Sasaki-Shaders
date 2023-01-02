@@ -1,4 +1,4 @@
-#version 450
+#version 450 compatibility
 /* DRAWBUFFERS:01 */
 
 /* includes */
@@ -6,7 +6,7 @@
 
 // basic
 uniform sampler2D gcolor;
-varying vec4 texcoord;
+in vec4 texcoord;
 
 // some uniform vars
 uniform mat4 gbufferModelViewInverse;
@@ -21,8 +21,8 @@ uniform sampler2D depthtex0;
 uniform float far; // projection matrix the far face
 
 // sun and moon
-varying float extShadow;
-varying vec3 lightPosition;
+in float extShadow;
+in vec3 lightPosition;
 
 // 水面不渲染阴影
 uniform sampler2D colortex4;
@@ -46,7 +46,7 @@ float shadowMapping(vec4 worldPosition, float dist, vec3 normal, float alpha) {
         shadowposition.xy /= distortFactor;
         shadowposition /= shadowposition.w;
         shadowposition = shadowposition * 0.5 + 0.5;
-        shade = 1.0 - shadow2D(shadow, vec3(shadowposition.st, shadowposition.z - 0.0001)).z;
+        shade = 1.0 - texture(shadow, vec3(shadowposition.st, shadowposition.z - 0.0001));
         if(angle < 0.2 && angle > 0.99)
             shade = max(shade, 1.0 - (angle - 0.1) * 10.0);
             shade -= max(0.0, edgeX * 10.0);
@@ -55,7 +55,7 @@ float shadowMapping(vec4 worldPosition, float dist, vec3 normal, float alpha) {
     shade -= clamp((dist - 0.7) * 5.0, 0.0, 1.0);//在l处于0.7~0.9的地方进行渐变过渡
     shade = clamp(shade, 0.0, 1.0); //避免出现过大或过小
     
-    if(texture2D(colortex4, texcoord.st).x * 255.0 == 1.0) // 水面不渲染阴影
+    if(texture(colortex4, texcoord.st).x * 255.0 == 1.0) // 水面不渲染阴影
         return max(shade, extShadow) * 0.05;
 
     return max(shade, extShadow);
@@ -77,12 +77,12 @@ vec3 normalDecode(vec2 enc) {
 uniform vec3 cameraPosition;
 uniform float frameTimeCounter;
 uniform sampler2D noisetex; // 噪声图
-varying vec3 worldSunPosition; // 太阳向量
+in vec3 worldSunPosition; // 太阳向量
 
-varying vec3 cloudBase1;
-varying vec3 cloudBase2;
-varying vec3 cloudLight1;
-varying vec3 cloudLight2;
+in vec3 cloudBase1;
+in vec3 cloudBase2;
+in vec3 cloudLight1;
+in vec3 cloudLight2;
 vec4 cloudLighting(vec4 sum, float density, float diff) {  
     vec4 color = vec4(mix(cloudBase1, cloudBase2, density ), density );
     vec3 lighting = mix(cloudLight1, cloudLight2, diff);
@@ -97,8 +97,8 @@ float noise(vec3 x) { // noise function
     vec3 f = fract(x);
     f = smoothstep(0.0, 1.0, f);
     vec2 uv = (p.xy+vec2(37.0, 17.0)*p.z) + f.xy;
-    float v1 = texture2D(noisetex, (uv) / 256.0, -100.0).x;
-    float v2 = texture2D(noisetex, (uv + vec2(37.0, 17.0)) / 256.0, -100.0).x;
+    float v1 = texture(noisetex, (uv) / 256.0, -100.0).x;
+    float v2 = texture(noisetex, (uv + vec2(37.0, 17.0)) / 256.0, -100.0).x;
     return mix(v1, v2, f.z);
 }
 float getCloudNoise(vec3 worldPos) { // use noise function to make cloud noise
@@ -160,10 +160,10 @@ vec3 cloudRayMarching(vec3 cameraPosition, vec4 viewPosition, vec3 originColor, 
 /* ----- Cloud - End ----- */
 
 void main() {
-    vec4 color = texture2D(gcolor, texcoord.st);
-    vec3 normal = normalDecode(texture2D(gnormal, texcoord.st).rg);
+    vec4 color = texture(gcolor, texcoord.st);
+    vec3 normal = normalDecode(texture(gnormal, texcoord.st).rg);
 
-    float depth = texture2D(depthtex0, texcoord.st).x;
+    float depth = texture(depthtex0, texcoord.st).x;
     vec4 viewPosition = gbufferProjectionInverse * vec4(texcoord.s * 2.0 - 1.0, texcoord.t * 2.0 - 1.0, 2.0 * depth - 1.0, 1.0f);
     viewPosition /= viewPosition.w;
     vec4 worldPosition = gbufferModelViewInverse * (viewPosition + vec4(normal * 0.05 * sqrt(abs(viewPosition.z)), 0.0));

@@ -1,7 +1,7 @@
-#version 450
+#version 450 compatibility
 
-varying vec4 color;
-varying vec2 normal;
+out vec4 color;
+out vec2 normal;
  
 vec2 normalEncode(vec3 n) {
     vec2 enc = normalize(n.xy) * (sqrt(-n.z*0.5+0.5));
