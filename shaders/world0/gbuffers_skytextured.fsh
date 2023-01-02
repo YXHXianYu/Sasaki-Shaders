@@ -1,14 +1,9 @@
 #version 450 compatibility
-/* DRAWBUFFERS:02 */
 
-uniform sampler2D texture;
+#define COLOR
+#define NORMAL
+#define TEXCOORD
+// #define LMCOORD
+// #define FOG
 
-in vec4 color;
-in vec4 texcoord;
-in vec2 normal;
-
-void main() {
-    gl_FragData[0] = texture2D(texture, texcoord.st) * color;
-    
-    gl_FragData[1] = vec4(normal, 0.0, 1.0);
-}
+#include "/program/basic_fragment_shader.glsl"
