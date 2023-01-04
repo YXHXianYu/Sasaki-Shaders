@@ -1,5 +1,5 @@
 /*
-basic vertex shader
+basic vertex shader (all gbuffers shaders can use this)
 
 use:
 #version 450 compatibility
@@ -15,6 +15,7 @@ use:
 extra:
 #define SHADOW_SHADER
 #define GBUFFERS_TERRAIN_SHADER
+#define GBUFFERS_WATER_SHADER
 */
 
 /* ----- includes ----- */
@@ -54,6 +55,22 @@ extra:
     out vec3 loop_position;       // for render vertex position mode
 #endif // GBUFFERS_TERRAIN_SHADER
 
+#ifdef GBUFFERS_WATER_SHADER
+    /* blockId */
+    in vec4 mc_Entity;
+    out float waterTag;
+    out float blockId;
+    /* dynamic water */
+    uniform sampler2D noisetex;     // noise
+    uniform float frameTimeCounter; // time
+    uniform vec3 cameraPosition;    // camera position
+    void DynamicWater(inout vec4 position, vec3 sample_position) {
+        float noise = texture(noisetex, sample_position.xz / 16.0).r;
+        float time = frameTimeCounter * 2.0;
+        position.y += (sin(noise * 10.0 + time) - 1.0) * DYNAMIC_WATER_STRENGTH;
+    }
+#endif // GBUFFERS_WATER_SHADER
+
 void main() {
 
     #ifdef COLOR
@@ -81,9 +98,9 @@ void main() {
 
     #ifdef GBUFFERS_TERRAIN_SHADER
         loop_position = mod(gl_Vertex.xyz + cameraPosition, 16.0); // for 1.18.2
-        int blockId = int(mc_Entity.x + 0.5);
+        int tBlockId = int(mc_Entity.x + 0.5);
 
-        if((blockId == BLOCK_SMALL_PLANTS || blockId == BLOCK_PLANTS || blockId == BLOCK_DOUBLE_PLANTS_UPPER) && gl_MultiTexCoord0.t < mc_midTexCoord.t) {
+        if((tBlockId == BLOCK_SMALL_PLANTS || tBlockId == BLOCK_PLANTS || tBlockId == BLOCK_DOUBLE_PLANTS_UPPER) && gl_MultiTexCoord0.t < mc_midTexCoord.t) {
             vec3 noise = texture(noisetex, loop_position.xz / 16.0).rgb; // 16 * 16 * 16; repeat (loop)
             float maxStrength = 1.0 + rainStrength * 0.5;
             float time = frameTimeCounter * 2.0;
@@ -91,7 +108,7 @@ void main() {
             reset = max( reset * reset, max(rainStrength, 0.1));
             position.x += sin(noise.x * 10.0 + time) * 0.2 * reset * maxStrength;
             position.z += sin(noise.y * 10.0 + time) * 0.2 * reset * maxStrength;
-        } else if(blockId == BLOCK_LEAVES)  {
+        } else if(tBlockId == BLOCK_LEAVES)  {
             vec3 noise = texture(noisetex, (loop_position.xz + 0.5) / 16.0).rgb; // 16 * 16 * 16; repeat (loop)
             float maxStrength = 1.0 + rainStrength * 0.5;
             float time = frameTimeCounter * 3.0;
@@ -101,6 +118,18 @@ void main() {
             position.z += sin(noise.y * 10.0 + time) * 0.07 * reset * maxStrength;
         }
     #endif // GBUFFERS_TERRAIN_SHADER
+
+    #ifdef GBUFFERS_WATER_SHADER
+        blockId = mc_Entity.x + 0.5;
+        if(int(blockId) == BLOCK_WATER && gl_Normal.y > -0.5) {
+            waterTag = 1.0 / 255.0;
+        } else {
+            waterTag = 0.0;
+        }
+        if(int(blockId) == BLOCK_WATER) {
+            DynamicWater(position, mod(gl_Vertex.xyz + cameraPosition, 16.0));
+        }
+    #endif // GBUFFERS_WATER_SHADER
 
     gl_Position = gl_ModelViewProjectionMatrix * position;
 

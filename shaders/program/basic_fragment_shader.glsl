@@ -1,7 +1,7 @@
 /*
-basic fragment shader
+basic fragment shader (all gbuffers shaders can use this)
 
-draw buffers are tex0(gcolor), tex2(gnormal)
+draw buffers are tex0(gcolor), tex2(gnormal), tex4(waterTag)
 
 use:
 #version 450 compatibility
@@ -15,9 +15,11 @@ use:
 // #include "/program/basic_fragment_shader.glsl"
 
 extra:
-#define HIGHTLIGHT_THIS       // used to hightlight some block
-#define DISCARD_WHEN_CLOUD // used in gbuffers_textured.fsh
+#define HIGHTLIGHT_THIS         // used to hightlight some block
+#define DISCARD_WHEN_CLOUD      // used in gbuffers_textured.fsh
 #define GBUFFERS_TERRAIN_SHADER
+#define GBUFFERS_ENTITIES_SHADER
+#define GBUFFERS_WATER_SHADER
 */
 
 /* ----- includes ----- */
@@ -55,8 +57,17 @@ extra:
     in vec3 loop_position;
 #endif // GBUFFERS_TERRAIN_SHADER
 
+#ifdef GBUFFERS_ENTITIES_SHADER
+    uniform vec4 entityColor; // 实体颜色（比如受击反馈）
+#endif // GBUFFERS_ENTITIES_SHADER
+
+#ifdef GBUFFERS_WATER_SHADER
+    in float waterTag;
+    in float blockId;
+#endif // GBUFFERS_WATER_SHADER
+
 void main() {
-/* DRAWBUFFERS:02 */
+/* DRAWBUFFERS:024 */
 
     #ifdef DISCARD_WHEN_CLOUD
         if(blockEntityId == 0 && ENABLE_CLOUD) {
@@ -93,6 +104,17 @@ void main() {
         if(RENDER_VERTEX_POSITION)
             current_color = vec4(loop_position, 1.0);
     #endif // GBUFFERS_TERRAIN_SHADER
+
+    #ifdef GBUFFERS_ENTITIES_SHADER
+        current_color.rgb = mix(current_color.rgb, entityColor.rgb, entityColor.a);
+    #endif // GBUFFERS_ENTITIES_SHADER
+
+    #ifdef GBUFFERS_WATER_SHADER
+        if(int(blockId) == BLOCK_WATER) {
+            current_color = vec4(vec3(0.5), WATER_TRANSPARENT_STRENGTH) * texture2D(lightmap, lmcoord.st) * mix(vec4(1.0), color, WATER_BLUE_STRENGTH);
+        }
+        gl_FragData[2] = vec4(waterTag, 0.0, 0.0, 1.0);
+    #endif // GBUFFERS_WATER_SHADER
 
     gl_FragData[0] = current_color;
 
