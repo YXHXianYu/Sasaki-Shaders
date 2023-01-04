@@ -3,6 +3,9 @@
 
 /* ----- Shaders Config ----- */
 
+/* Basic Config */
+const float BRIGHTNESS_MULTIPLE = 1.2;
+
 /* Shadow Mapping */
 const bool shadowHardwareFiltering = true; // [true] 如果想关闭此选项，则需要同时修改一部分代码
 const int shadowMapResolution = 2048; // Hardware PCF Resolution set to 2048 [1024, 2048, 4096, etc]

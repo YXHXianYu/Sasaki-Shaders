@@ -15,6 +15,7 @@ use:
 // #include "/program/basic_fragment_shader.glsl"
 
 extra:
+#define HIGHTLIGHT_THIS       // used to hightlight some block
 #define DISCARD_WHEN_CLOUD // used in gbuffers_textured.fsh
 #define GBUFFERS_TERRAIN_SHADER
 */
@@ -74,7 +75,7 @@ void main() {
     #endif // TEXCOORD
 
     #ifdef LMCOORD
-        current_color *= texture2D(lightmap, lmcoord.st);
+        current_color *= texture2D(lightmap, lmcoord.st) * BRIGHTNESS_MULTIPLE;
     #endif // LMCOORD
 
     #ifdef FOG
@@ -83,6 +84,10 @@ void main() {
         else if(fogMode == 2048)
             current_color.rgb = mix(gl_Fog.color.rgb, current_color.rgb, clamp(exp(-gl_FogFragCoord * gl_Fog.density), 0.0, 1.0));
     #endif // FOG
+
+    #ifdef HIGHTLIGHT_THIS
+        current_color = vec4(1.0);
+    #endif // HIGHTLIGHT_THIS
 
     #ifdef GBUFFERS_TERRAIN_SHADER
         if(RENDER_VERTEX_POSITION)
