@@ -4,7 +4,8 @@
 /* ----- Shaders Config ----- */
 
 /* Basic Config */
-const float BRIGHTNESS_MULTIPLE = 1.2;
+const float BRIGHTNESS_MULTIPLE_DAY = 1.2;
+const float BRIGHTNESS_MULTIPLE_NIGHT = 0.9;
 
 /* Shadow Mapping */
 const bool shadowHardwareFiltering = true; // [true] 如果想关闭此选项，则需要同时修改一部分代码
@@ -32,6 +33,23 @@ const float DYNAMIC_WATER_STRENGTH = 0.1; // [0.0 ~ 0.5]
 /* Transparent Water */
 const float WATER_TRANSPARENT_STRENGTH = 0.5; // [0.0 ~ 1.0] bigger => not transparent
 const float WATER_BLUE_STRENGTH = 0.4; // [0.0 ~ 1.0]
+
+/* Time of a Day */
+const int SUNRISE = 23200;
+const int SUNSET = 12800;
+const int FADE_START = 500;
+const int FADE_END = 250;
+
+const float SUNSET_START = 11500.0;
+const float SUNSET_MID1 = 12300.0;
+const float SUNSET_MID2 = 13600.0 - 600.0;
+const float SUNSET_MID3 = 14200.0 - 300.0;
+const float SUNSET_END = 14500.0;
+const float SUNRISE_START = 21000.0;
+const float SUNRISE_MID1 = 22000.0;
+const float SUNRISE_MID2 = 22500.0;
+const float SUNRISE_MID3 = 23500.0;
+const float SUNRISE_END = 24000.0;
 
 /* Some Special Rendering Mode */
 const bool RENDER_Z_BUFFER = false; // render z-buffer (depth buffer) [true of false]

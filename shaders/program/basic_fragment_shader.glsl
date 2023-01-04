@@ -43,6 +43,7 @@ extra:
 #ifdef LMCOORD
     in vec4 lmcoord;
     uniform sampler2D lightmap; // 光强图
+    uniform int worldTime;      // 一天中的时间 [0, 24000]
 #endif // LMCOORD
 
 #ifdef FOG
@@ -86,7 +87,17 @@ void main() {
     #endif // TEXCOORD
 
     #ifdef LMCOORD
-        current_color *= texture2D(lightmap, lmcoord.st) * BRIGHTNESS_MULTIPLE;
+        float brightness_multiple;
+        float fTime = float(worldTime);
+        if(fTime <= SUNSET_START) brightness_multiple = BRIGHTNESS_MULTIPLE_DAY;
+        else if(fTime <= SUNSET_END) {
+            brightness_multiple = mix(BRIGHTNESS_MULTIPLE_DAY, BRIGHTNESS_MULTIPLE_NIGHT, smoothstep(SUNSET_START, SUNSET_END, fTime));
+        } else if(fTime <= SUNRISE_START) {
+            brightness_multiple = BRIGHTNESS_MULTIPLE_NIGHT;
+        } else if(fTime <= SUNRISE_END) {
+            brightness_multiple = mix(BRIGHTNESS_MULTIPLE_NIGHT, BRIGHTNESS_MULTIPLE_DAY, smoothstep(SUNRISE_START, SUNRISE_END, fTime));
+        }
+        current_color *= texture2D(lightmap, lmcoord.st) * brightness_multiple;
     #endif // LMCOORD
 
     #ifdef FOG

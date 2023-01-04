@@ -2,6 +2,10 @@
 composite.vsh
 */
 
+/* ----- includes ----- */
+#include "/include/config.glsl"
+
+/* ----- others ----- */
 uniform mat4 gbufferModelViewInverse;
 
 uniform vec3 sunPosition;
@@ -12,11 +16,6 @@ out vec4 texcoord;
 out vec3 lightPosition;
 out float extShadow;
 out vec3 worldSunPosition;
- 
-const int SUNRISE = 23200;
-const int SUNSET = 12800;
-const int FADE_START = 500;
-const int FADE_END = 250;
 
 /* ----- Cloud change with time - Begin ----- */
 uniform float rainStrength;
@@ -25,17 +24,6 @@ out vec3 cloudBase1;
 out vec3 cloudBase2;
 out vec3 cloudLight1;
 out vec3 cloudLight2;
-
-const float SUNSET_START = 11500.0;
-const float SUNSET_MID1 = 12300.0;
-const float SUNSET_MID2 = 13600.0 - 600.0;
-const float SUNSET_MID3 = 14200.0- 300.0;
-const float SUNSET_END = 14500.0 ;
-const float SUNRISE_START = 21000.0;
-const float SUNRISE_MID1 = 22000.0;
-const float SUNRISE_MID2 = 22500.0;
-const float SUNRISE_MID3 = 23500.0;
-const float SUNRISE_END = 24000.0;
  
 const vec3 BASE1_DAY = vec3(1.0,0.95,0.9), BASE2_DAY = vec3(0.3,0.315,0.325);
 const vec3 LIGHTING1_DAY = vec3(0.7,0.75,0.8), LIGHTING2_DAY = vec3(1.8, 1.6, 1.35);
