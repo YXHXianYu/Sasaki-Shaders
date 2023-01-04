@@ -3,9 +3,15 @@
 
 /* ----- Shaders Config ----- */
 
+/* Basic Config */
+const float BRIGHTNESS_MULTIPLE_DAY = 1.2;
+const float BRIGHTNESS_MULTIPLE_NIGHT = 0.9;
+
 /* Shadow Mapping */
 const bool shadowHardwareFiltering = true; // [true] 如果想关闭此选项，则需要同时修改一部分代码
 const int shadowMapResolution = 2048; // Hardware PCF Resolution set to 2048 [1024, 2048, 4096, etc]
+// 注：MC的软阴影，使用了GLSL自带的2*2 filter size的PCF，所以效果不好。
+// 注：如果手动实现PCSS算法，那么阴影的效果会大大提升！
 
 const float SHADOW_MAP_BIAS = 0.85; // Dome Projection Coefficient [0.6, 0.8, 0.85, 0.9, etc]
 
@@ -29,6 +35,23 @@ const float DYNAMIC_WATER_STRENGTH = 0.1; // [0.0 ~ 0.5]
 /* Transparent Water */
 const float WATER_TRANSPARENT_STRENGTH = 0.5; // [0.0 ~ 1.0] bigger => not transparent
 const float WATER_BLUE_STRENGTH = 0.4; // [0.0 ~ 1.0]
+
+/* Time of a Day */
+const int SUNRISE = 23200;
+const int SUNSET = 12800;
+const int FADE_START = 500;
+const int FADE_END = 250;
+
+const float SUNSET_START = 11500.0;
+const float SUNSET_MID1 = 12500.0;
+const float SUNSET_MID2 = 13000.0;
+const float SUNSET_MID3 = 14000.0;
+const float SUNSET_END = 14500.0;
+const float SUNRISE_START = 21000.0;
+const float SUNRISE_MID1 = 22000.0;
+const float SUNRISE_MID2 = 22500.0;
+const float SUNRISE_MID3 = 23500.0;
+const float SUNRISE_END = 24000.0;
 
 /* Some Special Rendering Mode */
 const bool RENDER_Z_BUFFER = false; // render z-buffer (depth buffer) [true of false]

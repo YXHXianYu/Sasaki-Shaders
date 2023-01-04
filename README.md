@@ -17,6 +17,17 @@
   * Using 3D Screen Space Reflection (Ray Tracing)
 * Dynamic & Transparent Water
 
+### TODO
+
+* 阴影算法优化
+  * 目前阴影是采用GLSL自带的2*2 PCF，可以看作残缺的PCSS，软阴影效果不足。
+  * 可以将阴影算法替换为VSSM或MSM，效果将大大提升。
+* 雨天适配
+  * 云
+  * 雨滴
+  * 雾气
+* 地狱适配
+
 ### Preview
 
 ![2023-01-01_15.35.02](README/2023-01-01_15.35.02.png)

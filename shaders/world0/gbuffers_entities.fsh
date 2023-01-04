@@ -6,6 +6,6 @@
 #define LMCOORD
 #define FOG
 
-#define GBUFFERS_WATER_SHADER
+#define GBUFFERS_ENTITIES_SHADER
 
-#include "/program/basic_vertex_shader.glsl"
+#include "/program/basic_fragment_shader.glsl"
