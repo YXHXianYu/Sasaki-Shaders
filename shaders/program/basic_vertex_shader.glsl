@@ -47,7 +47,11 @@ extra:
 #endif // LMCOORD
 
 #ifdef GBUFFERS_TEXTURED_SHADER
-    in vec4 mc_Entity;
+    #ifdef OPTIFINE_OLD_VERSION_ENABLE
+        attribute vec4 mc_Entity;
+    #else  // OPTIFINE_OLD_VERSION_ENABLE
+        in vec4 mc_Entity;
+    #endif // OPTIFINE_OLD_VERSION_ENABLE
     out float blockId;
 #endif // GBUFFERS_TEXTURED_SHADER
 
@@ -56,14 +60,24 @@ extra:
     uniform float frameTimeCounter; // time
     uniform vec3 cameraPosition;    // camera position
     uniform float rainStrength;     // when it's raining, grass will move stronger
-    in vec4 mc_Entity;
-    in vec4 mc_midTexCoord;
+    #ifdef OPTIFINE_OLD_VERSION_ENABLE
+        attribute vec4 mc_Entity;
+        attribute vec4 mc_midTexCoord;
+    #else  // OPTIFINE_OLD_VERSION_ENABLE
+        in vec4 mc_Entity;
+        in vec4 mc_midTexCoord;
+    #endif // OPTIFINE_OLD_VERSION_ENABLE
     out vec3 loop_position;       // for render vertex position mode
 #endif // GBUFFERS_TERRAIN_SHADER
 
 #ifdef GBUFFERS_WATER_SHADER
     /* blockId */
-    in vec4 mc_Entity;
+    uniform int blockEntityId;
+    #ifdef OPTIFINE_OLD_VERSION_ENABLE
+        attribute vec4 mc_Entity;
+    #else  // OPTIFINE_OLD_VERSION_ENABLE
+        in vec4 mc_Entity;
+    #endif // OPTIFINE_OLD_VERSION_ENABLE
     out float blockId;
     /* dynamic water */
     uniform sampler2D noisetex;     // noise
@@ -114,6 +128,10 @@ void main() {
     #ifdef GBUFFERS_TERRAIN_SHADER
         loop_position = mod(gl_Vertex.xyz + cameraPosition, 16.0); // for 1.18.2
 
+        #ifdef OPTIFINE_OLD_VERSION_ENABLE
+            loop_position = gl_Vertex.xyz;
+        #endif // OPTIFINE_OLD_VERSION_ENABLE
+
         int tBlockId = int(mc_Entity.x + 0.5);
 
         if((tBlockId == BLOCK_SMALL_PLANTS || tBlockId == BLOCK_PLANTS || tBlockId == BLOCK_DOUBLE_PLANTS_UPPER) && gl_MultiTexCoord0.t < mc_midTexCoord.t) {
@@ -121,7 +139,7 @@ void main() {
             float maxStrength = 1.0 + rainStrength * 0.5;
             float time = frameTimeCounter * 2.0;
             float reset = cos(noise.z * 10.0 + time * 0.1);
-            reset = max( reset * reset, max(rainStrength, 0.1));
+            reset = max(reset * reset, max(rainStrength, 0.1));
             position.x += sin(noise.x * 10.0 + time) * 0.2 * reset * maxStrength;
             position.z += sin(noise.y * 10.0 + time) * 0.2 * reset * maxStrength;
         } else if(tBlockId == BLOCK_LEAVES)  {
@@ -139,14 +157,20 @@ void main() {
         // blockId
         blockId = mc_Entity.x + 0.5;
         // waterTag
-        if(int(blockId) == BLOCK_WATER && gl_Normal.y > -0.5) {
+        if((int(blockId) == BLOCK_WATER || (mc_Entity.x == 8 || mc_Entity.x == 9)) && gl_Normal.y > -0.5) {
             waterTag = 1.0 / 255.0;
         } else {
             waterTag = 0.0;
         }
         // dynamic water
-        if(int(blockId) == BLOCK_WATER) {
-            DynamicWater(position, mod(gl_Vertex.xyz + cameraPosition, 16.0));
+        if(int(blockId) == BLOCK_WATER || (mc_Entity.x == 8 || mc_Entity.x == 9)) {
+            vec3 samplePosition = mod(gl_Vertex.xyz + cameraPosition, 16.0);
+            
+            #ifdef OPTIFINE_OLD_VERSION_ENABLE
+                samplePosition = gl_Vertex.xyz;
+            #endif // OPTIFINE_OLD_VERSION_ENABLE
+
+            DynamicWater(position, samplePosition);
         }
         // sun reflection
         normal = gl_Normal;

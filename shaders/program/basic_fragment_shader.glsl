@@ -59,6 +59,7 @@ gbuffers选项不能同时开，否则会导致变量重定义
 #endif // FOG
 
 #ifdef GBUFFERS_TEXTURED_SHADER
+    uniform int blockEntityId;
     in float blockId;
 #endif // GBUFFERS_TEXTURED_SHADER
 
@@ -84,7 +85,7 @@ void main() {
 /* DRAWBUFFERS:024 */
 
     #ifdef GBUFFERS_TEXTURED_SHADER
-        if(int(blockId) == 0 && ENABLE_CLOUD) {
+        if((int(blockId) == 0 || blockEntityId == 0) && ENABLE_CLOUD) {
             discard;
         }
     #endif // GBUFFERS_TEXTURED_SHADER
@@ -127,6 +128,7 @@ void main() {
     #ifdef GBUFFERS_TERRAIN_SHADER
         if(RENDER_VERTEX_POSITION)
             current_color = vec4(loop_position, 1.0);
+        // current_color = vec4(vec3(1.0), 1.0);
     #endif // GBUFFERS_TERRAIN_SHADER
 
     #ifdef GBUFFERS_ENTITIES_SHADER
@@ -134,17 +136,17 @@ void main() {
     #endif // GBUFFERS_ENTITIES_SHADER
 
     #ifdef GBUFFERS_WATER_SHADER
-        if(int(blockId) == BLOCK_WATER) {
+        if(int(blockId) == BLOCK_WATER || int(blockId) == BLOCK_OLD_WATER) {
             current_color = vec4(vec3(0.5), WATER_TRANSPARENT_STRENGTH) * texture2D(lightmap, lmcoord.st) * mix(vec4(1.0), color, WATER_BLUE_STRENGTH);
 
+            // sun reflection
             vec3 lightDir = normalize((gbufferModelViewInverse * vec4(sunPosition, 0.0)).xyz);
             if(lightDir.y > 0.0) {
                 vec3 reflectDir = normalize(cameraPosition - fragPosition);
                 vec3 halfwayDir = normalize(lightDir + reflectDir);
                 float transition = 1.0;
                 if(lightDir.y < 0.1) transition = smoothstep(0.0, 1.0, lightDir.y * 10.0);
-                current_color += pow(max(dot(normal, halfwayDir), 0.0), 32.0) * vec4(0.8) * transition;
-                // current_color.rgb = halfwayDir;
+                current_color += pow(max(dot(normal, halfwayDir), 0.0), 32.0) * vec4(0.8);
             }
         }
         gl_FragData[2] = vec4(waterTag, 0.0, 0.0, 1.0);

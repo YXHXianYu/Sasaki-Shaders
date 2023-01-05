@@ -3,6 +3,9 @@
 
 /* ----- Shaders Config ----- */
 
+/* Optifine Version*/
+#define OPTIFINE_OLD_VERSION_ENABLE // 如果水面随着你的移动而抖动，那么就启用这个选项
+
 /* Basic Config */
 const float BRIGHTNESS_MULTIPLE_DAY = 1.1;
 const float BRIGHTNESS_MULTIPLE_NIGHT = 0.9;
