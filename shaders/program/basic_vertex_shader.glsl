@@ -127,13 +127,11 @@ void main() {
 
     #ifdef GBUFFERS_TERRAIN_SHADER
         loop_position = mod(gl_Vertex.xyz + cameraPosition, 16.0); // for 1.18.2
-
         #ifdef OPTIFINE_OLD_VERSION_ENABLE
             loop_position = gl_Vertex.xyz;
         #endif // OPTIFINE_OLD_VERSION_ENABLE
 
         int tBlockId = int(mc_Entity.x + 0.5);
-
         if((tBlockId == BLOCK_SMALL_PLANTS || tBlockId == BLOCK_PLANTS || tBlockId == BLOCK_DOUBLE_PLANTS_UPPER) && gl_MultiTexCoord0.t < mc_midTexCoord.t) {
             vec3 noise = texture(noisetex, loop_position.xz / 16.0).rgb; // 16 * 16 * 16; repeat (loop)
             float maxStrength = 1.0 + rainStrength * 0.5;
@@ -165,11 +163,9 @@ void main() {
         // dynamic water
         if(int(blockId) == BLOCK_WATER || (mc_Entity.x == 8 || mc_Entity.x == 9)) {
             vec3 samplePosition = mod(gl_Vertex.xyz + cameraPosition, 16.0);
-            
             #ifdef OPTIFINE_OLD_VERSION_ENABLE
                 samplePosition = gl_Vertex.xyz;
             #endif // OPTIFINE_OLD_VERSION_ENABLE
-
             DynamicWater(position, samplePosition);
         }
         // sun reflection
