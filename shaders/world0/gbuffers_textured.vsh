@@ -6,4 +6,6 @@
 // #define LMCOORD
 #define FOG
 
+#define GBUFFERS_TEXTURED_SHADER
+
 #include "/program/basic_vertex_shader.glsl"

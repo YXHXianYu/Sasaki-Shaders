@@ -14,6 +14,7 @@ use:
 
 extra:
 #define SHADOW_SHADER
+#define GBUFFERS_TEXTURED_SHADER
 #define GBUFFERS_TERRAIN_SHADER
 #define GBUFFERS_WATER_SHADER
 */
@@ -21,6 +22,12 @@ extra:
 /* ----- includes ----- */
 #include "/block.properties"
 #include "/include/config.glsl"
+#include "/include/utility.glsl"
+
+/* ----- preprocess ----- */
+#ifdef GBUFFERS_WATER_SHADER
+    #define NORMAL
+#endif
 
 /* ----- main ----- */
 #ifdef COLOR
@@ -28,13 +35,7 @@ extra:
 #endif // COLOR
 
 #ifdef NORMAL
-    out vec2 normal;
-    
-    vec2 normalEncode(vec3 n) {
-        vec2 enc = normalize(n.xy) * (sqrt(-n.z*0.5+0.5));
-        enc = enc*0.5+0.5;
-        return enc;
-    }
+    out vec2 normal_vec2;
 #endif // NORMAL
 
 #ifdef TEXCOORD
@@ -45,20 +46,38 @@ extra:
     out vec4 lmcoord;
 #endif // LMCOORD
 
+#ifdef GBUFFERS_TEXTURED_SHADER
+    #ifdef OPTIFINE_OLD_VERSION_ENABLE
+        attribute vec4 mc_Entity;
+    #else  // OPTIFINE_OLD_VERSION_ENABLE
+        in vec4 mc_Entity;
+    #endif // OPTIFINE_OLD_VERSION_ENABLE
+    out float blockId;
+#endif // GBUFFERS_TEXTURED_SHADER
+
 #ifdef GBUFFERS_TERRAIN_SHADER      // Waving Plants
     uniform sampler2D noisetex;     // noise texture
     uniform float frameTimeCounter; // time
     uniform vec3 cameraPosition;    // camera position
     uniform float rainStrength;     // when it's raining, grass will move stronger
-    in vec4 mc_Entity;
-    in vec4 mc_midTexCoord;
+    #ifdef OPTIFINE_OLD_VERSION_ENABLE
+        attribute vec4 mc_Entity;
+        attribute vec4 mc_midTexCoord;
+    #else  // OPTIFINE_OLD_VERSION_ENABLE
+        in vec4 mc_Entity;
+        in vec4 mc_midTexCoord;
+    #endif // OPTIFINE_OLD_VERSION_ENABLE
     out vec3 loop_position;       // for render vertex position mode
 #endif // GBUFFERS_TERRAIN_SHADER
 
 #ifdef GBUFFERS_WATER_SHADER
     /* blockId */
-    in vec4 mc_Entity;
-    out float waterTag;
+    uniform int blockEntityId;
+    #ifdef OPTIFINE_OLD_VERSION_ENABLE
+        attribute vec4 mc_Entity;
+    #else  // OPTIFINE_OLD_VERSION_ENABLE
+        in vec4 mc_Entity;
+    #endif // OPTIFINE_OLD_VERSION_ENABLE
     out float blockId;
     /* dynamic water */
     uniform sampler2D noisetex;     // noise
@@ -69,6 +88,10 @@ extra:
         float time = frameTimeCounter * 2.0;
         position.y += (sin(noise * 10.0 + time) - 1.0) * DYNAMIC_WATER_STRENGTH;
     }
+    /* others */
+    out float waterTag;
+    out vec3 normal;
+    out vec3 fragPosition;
 #endif // GBUFFERS_WATER_SHADER
 
 void main() {
@@ -78,7 +101,7 @@ void main() {
     #endif // COLOR
 
     #ifdef NORMAL
-        normal = normalEncode(gl_NormalMatrix * gl_Normal);
+        normal_vec2 = normalEncode(gl_NormalMatrix * gl_Normal);
     #endif // NORMAL
 
     #ifdef TEXCOORD
@@ -93,11 +116,22 @@ void main() {
         gl_FogFragCoord = length((gl_ModelViewMatrix * gl_Vertex).xyz);
     #endif // FOG    
 
+    #ifdef GBUFFERS_TEXTURED_SHADER
+        blockId = mc_Entity.x + 0.5;
+    #endif // GBUFFERS_TEXTURED_SHADER
+
+    // end
+
     // position
     vec4 position = gl_Vertex;
 
     #ifdef GBUFFERS_TERRAIN_SHADER
         loop_position = mod(gl_Vertex.xyz + cameraPosition, 16.0); // for 1.18.2
+
+        #ifdef OPTIFINE_OLD_VERSION_ENABLE
+            loop_position = gl_Vertex.xyz;
+        #endif // OPTIFINE_OLD_VERSION_ENABLE
+
         int tBlockId = int(mc_Entity.x + 0.5);
 
         if((tBlockId == BLOCK_SMALL_PLANTS || tBlockId == BLOCK_PLANTS || tBlockId == BLOCK_DOUBLE_PLANTS_UPPER) && gl_MultiTexCoord0.t < mc_midTexCoord.t) {
@@ -105,7 +139,7 @@ void main() {
             float maxStrength = 1.0 + rainStrength * 0.5;
             float time = frameTimeCounter * 2.0;
             float reset = cos(noise.z * 10.0 + time * 0.1);
-            reset = max( reset * reset, max(rainStrength, 0.1));
+            reset = max(reset * reset, max(rainStrength, 0.1));
             position.x += sin(noise.x * 10.0 + time) * 0.2 * reset * maxStrength;
             position.z += sin(noise.y * 10.0 + time) * 0.2 * reset * maxStrength;
         } else if(tBlockId == BLOCK_LEAVES)  {
@@ -120,15 +154,27 @@ void main() {
     #endif // GBUFFERS_TERRAIN_SHADER
 
     #ifdef GBUFFERS_WATER_SHADER
+        // blockId
         blockId = mc_Entity.x + 0.5;
-        if(int(blockId) == BLOCK_WATER && gl_Normal.y > -0.5) {
+        // waterTag
+        if((int(blockId) == BLOCK_WATER || (mc_Entity.x == 8 || mc_Entity.x == 9)) && gl_Normal.y > -0.5) {
             waterTag = 1.0 / 255.0;
         } else {
             waterTag = 0.0;
         }
-        if(int(blockId) == BLOCK_WATER) {
-            DynamicWater(position, mod(gl_Vertex.xyz + cameraPosition, 16.0));
+        // dynamic water
+        if(int(blockId) == BLOCK_WATER || (mc_Entity.x == 8 || mc_Entity.x == 9)) {
+            vec3 samplePosition = mod(gl_Vertex.xyz + cameraPosition, 16.0);
+            
+            #ifdef OPTIFINE_OLD_VERSION_ENABLE
+                samplePosition = gl_Vertex.xyz;
+            #endif // OPTIFINE_OLD_VERSION_ENABLE
+
+            DynamicWater(position, samplePosition);
         }
+        // sun reflection
+        normal = gl_Normal;
+        fragPosition = gl_Vertex.xyz + cameraPosition;
     #endif // GBUFFERS_WATER_SHADER
 
     gl_Position = gl_ModelViewProjectionMatrix * position;
