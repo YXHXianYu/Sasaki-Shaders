@@ -6,6 +6,6 @@
 // #define LMCOORD
 #define FOG
 
-#define DISCARD_WHEN_CLOUD
+#define GBUFFERS_TEXTURED_SHADER
 
 #include "/program/basic_fragment_shader.glsl"

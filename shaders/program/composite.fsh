@@ -61,6 +61,13 @@ float shadowMapping(vec4 worldPosition, float dist, vec3 normal, float alpha) {
 
     return max(shade, extShadow);
 }
+
+vec4 getShadowMapping(vec4 originColor, vec4 worldPosition, float dist, vec3 normal, float alpha) {
+    float shade = shadowMapping(worldPosition, dist, normal, alpha);
+    originColor.rgb *= 1.0 - shade * 0.5;
+    return originColor;
+}
+
 /* ----- Shadow Mapping - End ----- */
 
 uniform sampler2D gnormal;
@@ -173,10 +180,9 @@ void main() {
     vec4 worldPosition = gbufferModelViewInverse * (viewPosition + vec4(normal * 0.05 * sqrt(abs(viewPosition.z)), 0.0));
 
     float dist = length(worldPosition.xyz);
-    float shade = shadowMapping(worldPosition, dist / far, normal, color.a);
 
-    color.rgb *= 1.0 - shade * 0.5;
-    
+    color = getShadowMapping(color, worldPosition, dist / far, normal, color.a);
+
     color.rgb = cloudRayMarching(cameraPosition, viewPosition, color.rgb, ((dist / far > 0.9999) ? (100.0 * far) : (dist)));
 
     float brightness = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));

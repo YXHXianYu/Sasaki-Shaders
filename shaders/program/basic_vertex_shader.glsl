@@ -14,6 +14,7 @@ use:
 
 extra:
 #define SHADOW_SHADER
+#define GBUFFERS_TEXTURED_SHADER
 #define GBUFFERS_TERRAIN_SHADER
 #define GBUFFERS_WATER_SHADER
 */
@@ -21,6 +22,7 @@ extra:
 /* ----- includes ----- */
 #include "/block.properties"
 #include "/include/config.glsl"
+#include "/include/utility.glsl"
 
 /* ----- main ----- */
 #ifdef COLOR
@@ -45,6 +47,11 @@ extra:
     out vec4 lmcoord;
 #endif // LMCOORD
 
+#ifdef GBUFFERS_TEXTURED_SHADER
+    in vec4 mc_Entity;
+    out float blockId;
+#endif // GBUFFERS_TEXTURED_SHADER
+
 #ifdef GBUFFERS_TERRAIN_SHADER      // Waving Plants
     uniform sampler2D noisetex;     // noise texture
     uniform float frameTimeCounter; // time
@@ -60,6 +67,7 @@ extra:
     in vec4 mc_Entity;
     out float waterTag;
     out float blockId;
+    out float transparentMultiple;
     /* dynamic water */
     uniform sampler2D noisetex;     // noise
     uniform float frameTimeCounter; // time
@@ -93,6 +101,12 @@ void main() {
         gl_FogFragCoord = length((gl_ModelViewMatrix * gl_Vertex).xyz);
     #endif // FOG    
 
+    #ifdef GBUFFERS_TEXTURED_SHADER
+        blockId = mc_Entity.x + 0.5;
+    #endif // GBUFFERS_TEXTURED_SHADER
+
+    // end
+
     // position
     vec4 position = gl_Vertex;
 
@@ -120,15 +134,22 @@ void main() {
     #endif // GBUFFERS_TERRAIN_SHADER
 
     #ifdef GBUFFERS_WATER_SHADER
+        // blockId
         blockId = mc_Entity.x + 0.5;
+        // waterTag
         if(int(blockId) == BLOCK_WATER && gl_Normal.y > -0.5) {
             waterTag = 1.0 / 255.0;
         } else {
             waterTag = 0.0;
         }
+        // dynamic water
         if(int(blockId) == BLOCK_WATER) {
             DynamicWater(position, mod(gl_Vertex.xyz + cameraPosition, 16.0));
         }
+        // transparent level
+        float dis = length2(position.rgb);
+        
+        transparentMultiple = WATER_TRANSPARENT_STRENGTH;
     #endif // GBUFFERS_WATER_SHADER
 
     gl_Position = gl_ModelViewProjectionMatrix * position;

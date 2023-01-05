@@ -15,11 +15,13 @@ use:
 // #include "/program/basic_fragment_shader.glsl"
 
 extra:
-#define HIGHTLIGHT_THIS         // used to hightlight some block
-#define DISCARD_WHEN_CLOUD      // used in gbuffers_textured.fsh
+#define HIGHTLIGHT_THIS          // used to hightlight some block
+#define GBUFFERS_TEXTURED_SHADER
 #define GBUFFERS_TERRAIN_SHADER
 #define GBUFFERS_ENTITIES_SHADER
 #define GBUFFERS_WATER_SHADER
+
+gbuffers选项不能同时开，否则会导致变量重定义
 */
 
 /* ----- includes ----- */
@@ -50,9 +52,9 @@ extra:
     uniform int fogMode; // 雾模式 [2048, 9729]
 #endif // FOG
 
-#ifdef DISCARD_WHEN_CLOUD
-    uniform int blockEntityId;
-#endif // DISCARD_WHEN_CLOUD
+#ifdef GBUFFERS_TEXTURED_SHADER
+    in float blockId;
+#endif // GBUFFERS_TEXTURED_SHADER
 
 #ifdef GBUFFERS_TERRAIN_SHADER
     in vec3 loop_position;
@@ -65,16 +67,17 @@ extra:
 #ifdef GBUFFERS_WATER_SHADER
     in float waterTag;
     in float blockId;
+    in float transparentMultiple;
 #endif // GBUFFERS_WATER_SHADER
 
 void main() {
 /* DRAWBUFFERS:024 */
 
-    #ifdef DISCARD_WHEN_CLOUD
-        if(blockEntityId == 0 && ENABLE_CLOUD) {
+    #ifdef GBUFFERS_TEXTURED_SHADER
+        if(int(blockId) == 0 && ENABLE_CLOUD) {
             discard;
         }
-    #endif // DISCARD_WHRN_CLOUD
+    #endif // GBUFFERS_TEXTURED_SHADER
 
     vec4 current_color = vec4(1.0);
 
@@ -122,7 +125,7 @@ void main() {
 
     #ifdef GBUFFERS_WATER_SHADER
         if(int(blockId) == BLOCK_WATER) {
-            current_color = vec4(vec3(0.5), WATER_TRANSPARENT_STRENGTH) * texture2D(lightmap, lmcoord.st) * mix(vec4(1.0), color, WATER_BLUE_STRENGTH);
+            current_color = vec4(vec3(0.5), transparentMultiple) * texture2D(lightmap, lmcoord.st) * mix(vec4(1.0), color, WATER_BLUE_STRENGTH);
         }
         gl_FragData[2] = vec4(waterTag, 0.0, 0.0, 1.0);
     #endif // GBUFFERS_WATER_SHADER
