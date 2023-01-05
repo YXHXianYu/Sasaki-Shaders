@@ -4,7 +4,7 @@
 /* ----- Shaders Config ----- */
 
 /* Basic Config */
-const float BRIGHTNESS_MULTIPLE_DAY = 1.0;
+const float BRIGHTNESS_MULTIPLE_DAY = 1.1;
 const float BRIGHTNESS_MULTIPLE_NIGHT = 0.9;
 
 /* Shadow Mapping */
@@ -33,9 +33,8 @@ const bool ENABLE_JITTER = true; // [true or false]
 const float DYNAMIC_WATER_STRENGTH = 0.1; // [0.0 ~ 0.5]
 
 /* Transparent Water */
-const float WATER_TRANSPARENT_DISTANCE = 5000.0;
 const float WATER_TRANSPARENT_STRENGTH = 0.7; // [0.0 ~ 1.0] bigger => not transparent
-const float WATER_BLUE_STRENGTH = 0.6; // [0.0 ~ 1.0]
+const float WATER_BLUE_STRENGTH = 0.4; // [0.0 ~ 1.0]
 
 /* Time of a Day */
 const int SUNRISE = 23200;

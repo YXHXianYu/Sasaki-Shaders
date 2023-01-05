@@ -27,6 +27,12 @@ gbuffers选项不能同时开，否则会导致变量重定义
 /* ----- includes ----- */
 #include "/block.properties"
 #include "/include/config.glsl"
+#include "/include/utility.glsl"
+
+/* ----- preprocess ----- */
+#ifdef GBUFFERS_WATER_SHADER
+    #define NORMAL
+#endif
 
 /* ----- main ----- */
 #ifdef COLOR
@@ -34,7 +40,7 @@ gbuffers选项不能同时开，否则会导致变量重定义
 #endif // COLOR
 
 #ifdef NORMAL
-    in vec2 normal;
+    in vec2 normal_vec2;
 #endif // NORMAL
 
 #ifdef TEXCOORD
@@ -65,9 +71,13 @@ gbuffers选项不能同时开，否则会导致变量重定义
 #endif // GBUFFERS_ENTITIES_SHADER
 
 #ifdef GBUFFERS_WATER_SHADER
+    uniform vec3 sunPosition;
+    uniform vec3 cameraPosition;
+    uniform mat4 gbufferModelViewInverse;
     in float waterTag;
     in float blockId;
-    in float transparentMultiple;
+    in vec3 normal;
+    in vec3 fragPosition;
 #endif // GBUFFERS_WATER_SHADER
 
 void main() {
@@ -125,7 +135,17 @@ void main() {
 
     #ifdef GBUFFERS_WATER_SHADER
         if(int(blockId) == BLOCK_WATER) {
-            current_color = vec4(vec3(0.5), transparentMultiple) * texture2D(lightmap, lmcoord.st) * mix(vec4(1.0), color, WATER_BLUE_STRENGTH);
+            current_color = vec4(vec3(0.5), WATER_TRANSPARENT_STRENGTH) * texture2D(lightmap, lmcoord.st) * mix(vec4(1.0), color, WATER_BLUE_STRENGTH);
+
+            vec3 lightDir = normalize((gbufferModelViewInverse * vec4(sunPosition, 0.0)).xyz);
+            if(lightDir.y > 0.0) {
+                vec3 reflectDir = normalize(cameraPosition - fragPosition);
+                vec3 halfwayDir = normalize(lightDir + reflectDir);
+                float transition = 1.0;
+                if(lightDir.y < 0.1) transition = smoothstep(0.0, 1.0, lightDir.y * 10.0);
+                current_color += pow(max(dot(normal, halfwayDir), 0.0), 32.0) * vec4(0.8) * transition;
+                // current_color.rgb = halfwayDir;
+            }
         }
         gl_FragData[2] = vec4(waterTag, 0.0, 0.0, 1.0);
     #endif // GBUFFERS_WATER_SHADER
@@ -133,6 +153,6 @@ void main() {
     gl_FragData[0] = current_color;
 
     #ifdef NORMAL
-        gl_FragData[1] = vec4(normal, 0.0, 1.0);
+        gl_FragData[1] = vec4(normal_vec2, 0.0, 1.0);
     #endif // NORMAL
 }

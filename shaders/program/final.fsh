@@ -6,6 +6,7 @@ Bloom, Tone Mapping, Water Reflection
 
 /* ----- includes ----- */
 #include "/include/config.glsl"
+#include "/include/utility.glsl"
 
 /* ----- Basic ----- */
 uniform sampler2D gcolor;
@@ -50,13 +51,7 @@ uniform sampler2D colortex4;
 uniform sampler2D depthtex0;
 uniform float viewWidth;
 uniform float viewHeight;
-vec3 NormalDecode(vec2 enc) {
-    vec4 nn = vec4(2.0 * enc - 1.0, 1.0, -1.0);
-    float l = dot(nn.xyz,-nn.xyw);
-    nn.z = l;
-    nn.xy *= sqrt(l);
-    return nn.xyz * 2.0 + vec3(0.0, 0.0, -1.0);
-}
+
 vec3 MultipleGBufferProjection(vec4 p) {
     p = gbufferProjection * p;
     return p.xyz / p.w;
@@ -145,7 +140,7 @@ vec3 WaterReflection(vec3 color) {
     vec3 view_position = MultipleGBufferProjectionInverse(vec4(texcoord.s * 2.0 - 1.0, texcoord.t * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0)); // some of szszss'codes may be redundant
     float attr = texture(colortex4, uv).r * 255.0;
     if(attr == 1.0) {
-        vec3 normal = NormalDecode(texture(gnormal, texcoord.st).rg);
+        vec3 normal = normalDecode(texture(gnormal, texcoord.st).rg);
         vec3 reflect_direction = reflect(normalize(view_position), normal);
 
         // 抖动jitter：去除水面反射的封层，但出现锯齿。

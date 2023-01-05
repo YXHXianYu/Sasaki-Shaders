@@ -24,19 +24,18 @@ extra:
 #include "/include/config.glsl"
 #include "/include/utility.glsl"
 
+/* ----- preprocess ----- */
+#ifdef GBUFFERS_WATER_SHADER
+    #define NORMAL
+#endif
+
 /* ----- main ----- */
 #ifdef COLOR
     out vec4 color;
 #endif // COLOR
 
 #ifdef NORMAL
-    out vec2 normal;
-    
-    vec2 normalEncode(vec3 n) {
-        vec2 enc = normalize(n.xy) * (sqrt(-n.z*0.5+0.5));
-        enc = enc*0.5+0.5;
-        return enc;
-    }
+    out vec2 normal_vec2;
 #endif // NORMAL
 
 #ifdef TEXCOORD
@@ -65,9 +64,7 @@ extra:
 #ifdef GBUFFERS_WATER_SHADER
     /* blockId */
     in vec4 mc_Entity;
-    out float waterTag;
     out float blockId;
-    out float transparentMultiple;
     /* dynamic water */
     uniform sampler2D noisetex;     // noise
     uniform float frameTimeCounter; // time
@@ -77,6 +74,10 @@ extra:
         float time = frameTimeCounter * 2.0;
         position.y += (sin(noise * 10.0 + time) - 1.0) * DYNAMIC_WATER_STRENGTH;
     }
+    /* others */
+    out float waterTag;
+    out vec3 normal;
+    out vec3 fragPosition;
 #endif // GBUFFERS_WATER_SHADER
 
 void main() {
@@ -86,7 +87,7 @@ void main() {
     #endif // COLOR
 
     #ifdef NORMAL
-        normal = normalEncode(gl_NormalMatrix * gl_Normal);
+        normal_vec2 = normalEncode(gl_NormalMatrix * gl_Normal);
     #endif // NORMAL
 
     #ifdef TEXCOORD
@@ -112,6 +113,7 @@ void main() {
 
     #ifdef GBUFFERS_TERRAIN_SHADER
         loop_position = mod(gl_Vertex.xyz + cameraPosition, 16.0); // for 1.18.2
+
         int tBlockId = int(mc_Entity.x + 0.5);
 
         if((tBlockId == BLOCK_SMALL_PLANTS || tBlockId == BLOCK_PLANTS || tBlockId == BLOCK_DOUBLE_PLANTS_UPPER) && gl_MultiTexCoord0.t < mc_midTexCoord.t) {
@@ -146,10 +148,9 @@ void main() {
         if(int(blockId) == BLOCK_WATER) {
             DynamicWater(position, mod(gl_Vertex.xyz + cameraPosition, 16.0));
         }
-        // transparent level
-        float dis = length2(position.rgb);
-        
-        transparentMultiple = WATER_TRANSPARENT_STRENGTH;
+        // sun reflection
+        normal = gl_Normal;
+        fragPosition = gl_Vertex.xyz + cameraPosition;
     #endif // GBUFFERS_WATER_SHADER
 
     gl_Position = gl_ModelViewProjectionMatrix * position;
