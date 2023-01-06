@@ -146,7 +146,8 @@ vec3 cloudRayMarching(vec3 cameraPosition, vec4 viewPosition, vec3 originColor, 
     direction *= 1.0 / direction.y; // why use 1.0 / direction.y ?
     
     vec4 final = vec4(0.0);
-    float fadeout = (1.0 - clamp(length(testPoint) / (far * 100.0) * 6.0, 0.0, 1.0));
+    float fadeout = (1.0 - clamp(length(testPoint) / (50000.0) * 6.0, 0.0, 1.0));
+    // float fadeout = (1.0 - clamp(length(testPoint) / (far * 100.0) * 6.0, 0.0, 1.0));
 
     for(int i = 0; i < RAY_MARCHING_TIMES; i++) {
 
@@ -158,13 +159,18 @@ vec3 cloudRayMarching(vec3 cameraPosition, vec4 viewPosition, vec3 originColor, 
 
         vec3 samplePoint = vec3(testPoint.x, testPoint.y - cloudMin + CLOUD_MIN, testPoint.z);
         float density = getCloudNoise(samplePoint) * fadeout;
-        if(density > 0.0) {
+        if(density > 0.0 || true) {
             float diff = clamp((density - getCloudNoise(samplePoint + worldSunPosition * 10.0)) * 10.0, 0.0, 1.0);
             final = cloudLighting(final, density, diff);
         }
     }
     final = clamp(final, 0.0, 1.0);
     return mix(originColor, originColor * (1.0 - final.a) + final.rgb, 1.0 - rainStrength);
+}
+
+vec4 getCloud(vec4 originColor, vec3 cameraPosition, vec4 viewPosition, float maxDistance) {
+    originColor.rgb = cloudRayMarching(cameraPosition, viewPosition, originColor.rgb, maxDistance);
+    return originColor;
 }
 /* ----- Cloud - End ----- */
 
@@ -183,7 +189,7 @@ void main() {
 
     color = getShadowMapping(color, worldPosition, dist / far, normal, color.a);
 
-    color.rgb = cloudRayMarching(cameraPosition, viewPosition, color.rgb, ((dist / far > 0.9999) ? (100.0 * far) : (dist)));
+    color = getCloud(color, cameraPosition, viewPosition, ((dist / far > 0.9999) ? (100.0 * far) : (dist)));
 
     float brightness = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
     vec3 highlight = color.rgb * max(brightness - 0.25, 0.0);
