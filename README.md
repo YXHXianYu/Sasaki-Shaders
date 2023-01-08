@@ -1,8 +1,8 @@
 # Sasaki-Shaders
 
 * A fundamental Minecraft shaderspack.
-
 * This shader is made for fun.
+* [Sasaki-Shaders](https://github.com/YXHXianYu/Sasaki-Shaders/)
 
 ### Features
 
@@ -17,7 +17,7 @@
 * Dynamic and Transparent Water
 * Water's Reflection of Sunshine
 
-### TODO
+### TODO Lists
 
 * Cloud optimization
 * Shadow algorithm optimization
@@ -31,6 +31,10 @@
 ### Preview
 
 ![2023-01-01_15.35.02](README/2023-01-01_15.35.02.png)
+
+![2023-01-08_12.24.53](README/2023-01-08_12.24.53.png)
+
+![2023-01-08_14.55.33](README/2023-01-08_14.55.33.png)
 
 ### Minecraft versions
 
