@@ -140,7 +140,8 @@ vec3 WaterReflection(vec3 color) {
     vec3 view_position = MultipleGBufferProjectionInverse(vec4(texcoord.s * 2.0 - 1.0, texcoord.t * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0)); // some of szszss'codes may be redundant
     float attr = texture(colortex4, uv).r * 255.0;
     if(attr == 1.0) {
-        vec3 normal = normalDecode(texture(gnormal, texcoord.st).rg);
+        vec3 normal = normalize(normalDecode(texture(gnormal, texcoord.st).rg));
+
         vec3 reflect_direction = reflect(normalize(view_position), normal);
 
         // 抖动jitter：去除水面反射的封层，但出现锯齿。
@@ -152,7 +153,7 @@ vec3 WaterReflection(vec3 color) {
 
         // Schlick's approximation
         float fresnel = 0.02 + 0.98 * pow(1.0 - dot(reflect_direction, normal), 3.0);
-
+        
         color = WaterRayTracing(color, view_position + normal * (-view_position.z / far * 0.2 + 0.05), reflect_direction, jitter, fresnel);
         // 不用color = WaterRayTracing(color, view_position, reflect_direction)的原因：避免撞到出发点
 
