@@ -9,24 +9,24 @@
 * Waving Grass and Leaves
 * Bloom
 * Shadow
-  * Using shadow mapping and percentage closer filter
+  * Using Shadow Mapping and Percentage Closer Filter
 * Clouds
-  * Based on [iq's clouds](https://www.shadertoy.com/view/XslGRr) and using Ray Marching
-  * A lot of improvements are needed...
-* Water Reflection
+  * Based on [iq's Clouds](https://www.shadertoy.com/view/XslGRr) and using Ray Marching
+* Water Surface Reflection 
   * Using 3D Screen Space Reflection (Ray Tracing)
-* Dynamic & Transparent Water
+* Dynamic and Transparent Water
+* Water's Reflection of Sunshine
 
 ### TODO
 
-* 阴影算法优化
-  * 目前阴影是采用GLSL自带的2*2 PCF，可以看作残缺的PCSS，软阴影效果不足。
-  * 可以将阴影算法替换为VSSM或MSM，效果将大大提升。
-* 雨天适配
-  * 云
-  * 雨滴
-  * 雾气
-* 地狱适配
+* Cloud optimization
+* Shadow algorithm optimization
+  * Change algorithm to VSSM or MSM
+* Adaptation to rainy days
+  * Cloud
+  * Raindrop
+  * Fog
+* Adaptation to hell
 
 ### Preview
 
@@ -35,6 +35,7 @@
 ### Minecraft versions
 
 * Suggestion version: 1.18.2
+* In the lower version, the "Optifine旧版模式" option needs to be enabled
 
 ### Reference
 
