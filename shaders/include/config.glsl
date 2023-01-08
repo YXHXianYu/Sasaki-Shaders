@@ -1,43 +1,48 @@
 #ifndef _CONFIG_GLSL_
 #define _CONFIG_GLSL_
 
-/* ----- Shaders Config ----- */
+/* ----- ----- ----- Shaders Config ----- ----- ----- */
 
 /* Optifine Version*/
-#define OPTIFINE_OLD_VERSION_ENABLE // 如果水面随着你的移动而抖动，那么就启用这个选项
+// #define OPTIFINE_OLD_VERSION_ENABLE // 如果水面随着你的移动而抖动，那么就启用这个选项
 
-/* Basic Config */
-const float BRIGHTNESS_MULTIPLE_DAY = 1.1;
-const float BRIGHTNESS_MULTIPLE_NIGHT = 0.9;
+/* Special Rendering Mode */
+#define RENDER_Z_BUFFER false // [true false] render z-buffer (depth buffer) 
+#define RENDER_VERTEX_POSITION false // [true false] render vertex position 
 
-/* Shadow Mapping */
-const bool shadowHardwareFiltering = true; // [true] 如果想关闭此选项，则需要同时修改一部分代码
-const int shadowMapResolution = 2048; // Hardware PCF Resolution set to 2048 [1024, 2048, 4096, etc]
-// 注：MC的软阴影，使用了GLSL自带的2*2 filter size的PCF，所以效果不好。
-// 注：如果手动实现PCSS算法，那么阴影的效果会大大提升！
-
-const float SHADOW_MAP_BIAS = 0.85; // Dome Projection Coefficient [0.6, 0.8, 0.85, 0.9, etc]
+/* Brightness */
+#define BRIGHTNESS_MULTIPLE_DAY 1.1 // [1.0 1.1 1.2]
+#define BRIGHTNESS_MULTIPLE_NIGHT 0.9 // [0.8 0.9 1.0]
 
 /* Bloom */
-const float BLOOM_STRENGTH = 0.2; // [0.0 ~ 1.0]
+#define BLOOM_STRENGTH 0.2 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0] Bloom
 
 /* Cloud */
-const bool ENABLE_CLOUD = true; // [true or false]
-const float CLOUD_MIN = 400.0; // [0.0, CLOUD_MAX)
-const float CLOUD_MAX = 460.0; // (CLOUD_MIN, inf)
-const float RAY_MARCHING_TIMES = 64; // [32, 64, 128, etc]
-const float RAY_MARCHING_DIRECTION_Y_LIMIT = 0.05; // [0.01, 0.05, 0.1, 0.5]
+#define ENABLE_CLOUD true // [true or false]
+#define CLOUD_SPEED_X 13.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0 41.0 42.0 43.0 44.0 45.0 46.0 47.0 48.0 49.0 50.0]
+#define CLOUD_SPEED_Y 8.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0 41.0 42.0 43.0 44.0 45.0 46.0 47.0 48.0 49.0 50.0]
+#define CLOUD_SPEED_Z 8.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0 41.0 42.0 43.0 44.0 45.0 46.0 47.0 48.0 49.0 50.0]
+#define CLOUD_MOVE_STRENGTH_Y 20.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0 41.0 42.0 43.0 44.0 45.0 46.0 47.0 48.0 49.0 50.0]
+#define CLOUD_MIN 400.0 // [0.0, CLOUD_MAX)
+#define CLOUD_MAX 460.0 // (CLOUD_MIN, inf)
+#define RAY_MARCHING_TIMES 64 // [32 64 128]
+#define RAY_MARCHING_DIRECTION_Y_LIMIT 0.05 // [0.01 0.05 0.1 0.5]
 
 /* Water Reflection */
-const bool ENABLE_WATER_REFLECTION = true; // [true or false]
-const bool ENABLE_JITTER = true; // [true or false]
+#define ENABLE_WATER_REFLECTION true // [true false]
+#define ENABLE_JITTER true // [true false]
 
 /* Dynamic Water */
-const float DYNAMIC_WATER_STRENGTH = 0.1; // [0.0 ~ 0.5]
+#define DYNAMIC_WATER_STRENGTH 0.1 // [0.0 0.1 0.2 0.3 0.4 0.5]
 
 /* Transparent Water */
-const float WATER_TRANSPARENT_STRENGTH = 0.7; // [0.0 ~ 1.0] bigger => not transparent
-const float WATER_BLUE_STRENGTH = 0.4; // [0.0 ~ 1.0]
+#define WATER_TRANSPARENT_STRENGTH 0.7 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0] bigger => not transparent
+#define WATER_BLUE_STRENGTH 0.4 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+
+/* ----- ----- ----- Shaders Constants ----- ----- ----- */
+
+/* mathmatics */
+const float eps = 1e-4;
 
 /* Time of a Day */
 const int SUNRISE = 23200;
@@ -56,11 +61,7 @@ const float SUNRISE_MID2 = 22500.0;
 const float SUNRISE_MID3 = 23500.0;
 const float SUNRISE_END = 24000.0;
 
-/* Some Special Rendering Mode */
-const bool RENDER_Z_BUFFER = false; // render z-buffer (depth buffer) [true of false]
-const bool RENDER_VERTEX_POSITION = false; // render vertex position [true of false]
-
-/* ----- System Config ----- */
+/* ----- ----- ----- System Config ----- ----- ----- */
 // This code used to set in final.fsh
 // Do not change the following codes if you don't know what you are doing.
 
@@ -72,6 +73,14 @@ const int colortex1Format = RGB8; // bloom
 const int colortex3Format = RGB8; // bloom cache
 const int R8 = 0;
 const int colortex4Format = R8; // water tag
+
+/* Shadow Mapping */
+const bool shadowHardwareFiltering = true; // [true] 如果想关闭此选项，则需要同时修改一部分代码
+const int shadowMapResolution = 2048; // Hardware PCF Resolution set to 2048 [512 1024 2048 4096]
+// 注：MC的软阴影，使用了GLSL自带的2*2 filter size的PCF，所以效果不好。
+// 注：如果手动实现PCSS算法，那么阴影的效果会大大提升！
+#define SHADOW_MAP_BIAS 0.85 // Dome Projection Coefficient [0.6, 0.8, 0.85, 0.9, etc]
+
 /* Set Noise Texture Resolution */
 const int noiseTextureResolution = 256;
 

@@ -1,0 +1,37 @@
+screen.CLOUD = §6体积云
+
+option.OPTIFINE_OLD_VERSION_ENABLE = Optifine旧版模式
+    option.OPTIFINE_OLD_VERSION_ENABLE.comment = §1如果水面随着你的移动而快速抖动，那么就启用这个选项
+
+option.RENDER_Z_BUFFER = 渲染Z-Buffer(深度)
+    option.RENDER_Z_BUFFER.comment = §2让世界只有黑与白...
+option.RENDER_VERTEX_POSITION = 渲染顶点坐标
+    option.RENDER_VERTEX_POSITION.comment = §3将所有地形方块渲染为顶点坐标
+
+option.BRIGHTNESS_MULTIPLE_DAY = 白昼亮度倍数
+
+option.BRIGHTNESS_MULTIPLE_NIGHT = 黑夜亮度倍数
+
+option.BLOOM_STRENGTH = 泛光强度
+
+option.ENABLE_CLOUD = 是否启用体积云
+
+option.CLOUD_SPEED_X = 云移动速度(x轴)
+
+option.CLOUD_SPEED_Y = 云移动速度(y轴)
+
+option.CLOUD_SPEED_Z = 云移动速度(z轴)
+
+option.CLOUD_MOVE_STRENGTH_Y = 云移动强度(y轴)
+
+option.ENABLE_WATER_REFLECTION = 是否启用水面反射
+
+option.ENABLE_JITTER = 是否启用水面反射抖动
+
+option.DYNAMIC_WATER_STRENGTH = 动态水强度
+
+option.WATER_TRANSPARENT_STRENGTH = 水面透明强度
+
+option.WATER_BLUE_STRENGTH = 水面蓝色强度
+
+option.shadowMapResolution = Shadow Mapping 分辨率

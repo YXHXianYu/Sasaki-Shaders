@@ -1,5 +1,7 @@
 /*
 composite.fsh
+
+Shadow, Cloud
 */
 
 /* includes */
@@ -50,7 +52,7 @@ float shadowMapping(vec4 worldPosition, float dist, vec3 normal, float alpha) {
         shade = 1.0 - texture(shadow, vec3(shadowposition.st, shadowposition.z - 0.0001));
         if(angle < 0.2 && angle > 0.99)
             shade = max(shade, 1.0 - (angle - 0.1) * 10.0);
-            shade -= max(0.0, edgeX * 10.0);
+        shade -= max(0.0, edgeX * 10.0);
         shade -= max(0.0, edgeY * 10.0);
     }
     shade -= clamp((dist - 0.7) * 5.0, 0.0, 1.0);//在l处于0.7~0.9的地方进行渐变过渡
@@ -118,7 +120,9 @@ float getCloudNoise(vec3 worldPos) { // use noise function to make cloud noise
     } else if(coord.y > CLOUD_MAX) {
         density = 1.0 - smoothstep(0.0, 1.0, min(coord.y - CLOUD_MAX, 1.0));
     }
-    coord.x += frameTimeCounter * 10.0;
+    coord.x += frameTimeCounter * CLOUD_SPEED_X;
+    coord.z += frameTimeCounter * CLOUD_SPEED_Z;
+    coord.y += sin(frameTimeCounter * CLOUD_SPEED_Y * 0.05) * CLOUD_MOVE_STRENGTH_Y;
     coord *= 0.002;
     float n  = noise(coord) * 0.5;   coord *= 3.0;
           n += noise(coord) * 0.25;  coord *= 3.01;
@@ -146,7 +150,8 @@ vec3 cloudRayMarching(vec3 cameraPosition, vec4 viewPosition, vec3 originColor, 
     direction *= 1.0 / direction.y; // why use 1.0 / direction.y ?
     
     vec4 final = vec4(0.0);
-    float fadeout = (1.0 - clamp(length(testPoint) / (far * 100.0) * 6.0, 0.0, 1.0));
+    float fadeout = (1.0 - clamp(length(testPoint) / (50000.0) * 6.0, 0.0, 1.0));
+    // float fadeout = (1.0 - clamp(length(testPoint) / (far * 100.0) * 6.0, 0.0, 1.0));
 
     for(int i = 0; i < RAY_MARCHING_TIMES; i++) {
 
@@ -158,13 +163,18 @@ vec3 cloudRayMarching(vec3 cameraPosition, vec4 viewPosition, vec3 originColor, 
 
         vec3 samplePoint = vec3(testPoint.x, testPoint.y - cloudMin + CLOUD_MIN, testPoint.z);
         float density = getCloudNoise(samplePoint) * fadeout;
-        if(density > 0.0) {
+        if(density > 0.0 || true) {
             float diff = clamp((density - getCloudNoise(samplePoint + worldSunPosition * 10.0)) * 10.0, 0.0, 1.0);
             final = cloudLighting(final, density, diff);
         }
     }
     final = clamp(final, 0.0, 1.0);
     return mix(originColor, originColor * (1.0 - final.a) + final.rgb, 1.0 - rainStrength);
+}
+
+vec4 getCloud(vec4 originColor, vec3 cameraPosition, vec4 viewPosition, float maxDistance) {
+    originColor.rgb = cloudRayMarching(cameraPosition, viewPosition, originColor.rgb, maxDistance);
+    return originColor;
 }
 /* ----- Cloud - End ----- */
 
@@ -183,7 +193,7 @@ void main() {
 
     color = getShadowMapping(color, worldPosition, dist / far, normal, color.a);
 
-    color.rgb = cloudRayMarching(cameraPosition, viewPosition, color.rgb, ((dist / far > 0.9999) ? (100.0 * far) : (dist)));
+    color = getCloud(color, cameraPosition, viewPosition, ((dist > far) ? (100.0 * far) : (dist)));
 
     float brightness = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
     vec3 highlight = color.rgb * max(brightness - 0.25, 0.0);
