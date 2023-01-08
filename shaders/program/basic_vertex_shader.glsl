@@ -101,21 +101,7 @@ void main() {
     #endif // COLOR
 
     #ifdef NORMAL
-        mat4 matrix4 = transpose(gl_ModelViewMatrixInverse);
-        mat3 matrix3;
-        matrix3[0][0] = matrix4[0][0];
-        matrix3[0][1] = matrix4[0][1];
-        matrix3[0][2] = matrix4[0][2];
-        
-        matrix3[1][0] = matrix4[1][0];
-        matrix3[1][1] = matrix4[1][1];
-        matrix3[1][2] = matrix4[1][2];
-        
-        matrix3[2][0] = matrix4[2][0];
-        matrix3[2][1] = matrix4[2][1];
-        matrix3[2][2] = matrix4[2][2];
-        
-        normal_vec2 = normalEncode((matrix3 * gl_Normal));
+        normal_vec2 = normalEncode(normalize(gl_NormalMatrix * gl_Normal));
     #endif // NORMAL
 
     #ifdef TEXCOORD
