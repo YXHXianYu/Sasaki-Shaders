@@ -48,4 +48,4 @@
 
 ### Sasaki！
 
-* This shader's name comes from my favorite galgame [Flowers](https://zh.moegirl.org.cn/FLOWERS(Innocent_Grey)#) o(\*￣▽￣\*)o. 
+* This shader's name derives from my favorite galgame [Flowers](https://zh.moegirl.org.cn/FLOWERS(Innocent_Grey)#) o(\*￣▽￣\*)o. 
